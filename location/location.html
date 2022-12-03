@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>GEO Location</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
+    <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.js"></script>
+
+  </head>
+
+  <body>
+      <div id="map"></div>
+
+      <p>latitude : <span id="latitude"></span> </p>
+      <p>longitude : <span id="longitude"></span> </p>
+
+
+      <script src="https://maps.googleapis.com/maps/api/js?key=api_key&callback=getData" async defer></script>
+      <script type="text/javascript">
+        function getData() {
+          $.ajax({
+            url: "/location/geo.php",
+            async: true,
+            dataType: 'json',
+            success: function (data) {
+              console.log("success");
+              console.log(data);
+              if(data['latitude']){
+                $('#latitude').html(data['latitude']);
+              }
+              if(data['longitude']){
+                $('#longitude').html(data['longitude']);
+              }
+              //load map
+              init_map(data);
+            }
+          });
+        }
+
+        function init_map(data) {
+          var map_options = {
+              zoom: 14,
+              center: new google.maps.LatLng(data['latitude'], data['longitude'])
+          }
+          map = new google.maps.Map(document.getElementById("map"), map_options);
+          marker = new google.maps.Marker({map: map, position: new google.maps.LatLng(data['latitude'], data['longitude'])
+          });
+          infowindow = new google.maps.InfoWindow({
+              content: data['formatted_address']
+          });
+          google.maps.event.addListener(marker, "click", function () {
+              infowindow.open(map, marker);
+          });
+          infowindow.open(map, marker);
+        }
+
+      </script>
+  </body>
+
+
+</html>
